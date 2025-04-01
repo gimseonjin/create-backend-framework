@@ -3,12 +3,39 @@
  */
 package org.example;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
+import java.io.File;
+import java.util.Map;
+import javax.servlet.ServletRegistration;
+import javax.servlet.http.HttpServlet;
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+import org.apache.catalina.Context;
+import org.apache.catalina.startup.Tomcat;
+
+
+public class App {
+    public static void main(String[] args) throws Exception {
+        String root = new File(".").getAbsolutePath();
+
+        String baseDir = root + File.separatorChar + "temp";
+
+        int webPort = 18080;
+
+        Tomcat tomcat = new Tomcat();
+        tomcat.setPort(webPort);
+
+        tomcat.setBaseDir(baseDir);
+        tomcat.setPort(webPort);
+
+        Context context = tomcat.addContext("/", baseDir);
+
+        HttpServlet board = new BoardServlet();
+
+        // http://localhost:18080/board?mode=callList
+        tomcat.addServlet("/", "board", board);
+        context.addServletMappingDecoded("/board", "board");
+
+        tomcat.getConnector();
+        tomcat.start();
+        tomcat.getServer().await();
     }
 }
